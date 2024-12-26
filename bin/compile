@@ -1,15 +1,21 @@
 #!/bin/bash
 set -e
 
+echo "Current working directory: $(pwd)"
+echo "Listing files in root:"
+ls -l
+
 echo "Installing Bun..."
 curl -fsSL https://bun.sh/install | bash
 
 export PATH="$HOME/.bun/bin:$PATH"
 
-echo "Installing dependencies with Bun..."
-bun install --cache
-
-echo "Running build script..."
 if [ -f package.json ]; then
-  bun run build
+  echo "package.json found in root. Running bun install..."
+  bun install --cache
+else
+  echo "No package.json found. Exiting."
+  exit 1
 fi
+
+echo "Build completed."

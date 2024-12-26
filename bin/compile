@@ -1,21 +1,50 @@
 #!/bin/bash
 set -e
 
-echo "Current working directory: $(pwd)"
-echo "Listing files in root:"
-ls -l
+BUILD_DIR=$1
+CACHE_DIR=$2
 
-echo "Installing Bun..."
-curl -fsSL https://bun.sh/install | bash
+echo "-----> Starting Bun Buildpack"
 
-export PATH="$HOME/.bun/bin:$PATH"
+# Installer Bun
+echo "-----> Installing Bun"
+BUN_DIR="$BUILD_DIR/.scalingo/bun"
+mkdir -p $BUN_DIR
+BUN_VERSION="1.1.38"
+BUN_DISTRO="linux-x64"
+BUN_BINARY="bun-${BUN_DISTRO}"
+BUN_URL="https://github.com/oven-sh/bun/releases/download/bun-v$BUN_VERSION/${BUN_BINARY}.zip"
 
-if [ -f package.json ]; then
-  echo "package.json found in root. Running bun install..."
-  bun install --cache
-else
-  echo "No package.json found. Exiting."
+curl -fsSL $BUN_URL -o bun.zip
+unzip -qo bun.zip -d $BUN_DIR
+chmod +x $BUN_DIR/${BUN_BINARY}/bun
+rm bun.zip
+
+# Ajouter Bun au PATH
+export PATH="$BUN_DIR/${BUN_BINARY}:$PATH"
+
+# Installer les dépendances
+echo "-----> Installing dependencies with Bun"
+cd $BUILD_DIR
+bun install --cache || {
+  echo "bun install failed."
   exit 1
+}
+
+# Construire l'application
+if grep -q '"build":' package.json; then
+  echo "-----> Running build script"
+  bun run build || {
+    echo "Build script failed."
+    exit 1
+  }
+else
+  echo "No build script found. Skipping."
 fi
 
-echo "Build completed."
+# Nettoyer le cache
+echo "-----> Cleaning cache"
+rm -rf $CACHE_DIR/*
+cp -R $BUN_DIR $CACHE_DIR
+
+echo "-----> Bun Buildpack completed"

@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+if grep -q '"packageManager": "bun' package.json; then
+  echo "Bun Buildpack"
+  exit 0
+else
+  exit 1
+fi

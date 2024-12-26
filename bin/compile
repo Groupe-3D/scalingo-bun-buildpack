@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+echo "Installing Bun..."
+curl -fsSL https://bun.sh/install | bash
+
+export PATH="$HOME/.bun/bin:$PATH"
+
+echo "Installing dependencies with Bun..."
+bun install --cache
+
+echo "Running build script..."
+if [ -f package.json ]; then
+  bun run build
+fi

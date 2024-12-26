@@ -20,8 +20,12 @@ unzip -qo bun.zip -d $BUN_DIR
 chmod +x $BUN_DIR/${BUN_BINARY}/bun
 rm bun.zip
 
-# Ajouter Bun au PATH
+# Ajouter Bun au PATH pour le build
 export PATH="$BUN_DIR/${BUN_BINARY}:$PATH"
+
+# Persister PATH pour le runtime Scalingo
+mkdir -p "$BUILD_DIR/.profile.d"
+echo "export PATH=\"$BUN_DIR/${BUN_BINARY}:\$PATH\"" > "$BUILD_DIR/.profile.d/bun.sh"
 
 # Installer les dépendances
 echo "-----> Installing dependencies with Bun"

@@ -10,6 +10,19 @@ echo "-----> Starting Bun Buildpack"
 command -v curl > /dev/null || { echo "curl is required but not installed"; exit 1; }
 command -v unzip > /dev/null || { echo "unzip is required but not installed"; exit 1; }
 
+echo "-----> Detecting Bun version"
+if [ -f $BUILD_DIR/.bun-version ]
+then
+  BUN_VERSION="$(cat $BUILD_DIR/.bun-version)"
+elif [ -f $BUILD_DIR/runtime.bun.txt ]
+then
+  BUN_VERSION="$(cat $BUILD_DIR/runtime.bun.txt)"
+elif [ -f $BUILD_DIR/runtime.txt ]
+then
+  BUN_VERSION="$(cat $BUILD_DIR/runtime.txt)"
+fi
+echo "-----> Detected Bun version $BUN_VERSION"
+
 # Restore Bun from cache if available
 BUN_DIR="$BUILD_DIR/.scalingo/bun"
 if [ -d "$CACHE_DIR/.scalingo/bun" ]; then
@@ -18,7 +31,6 @@ if [ -d "$CACHE_DIR/.scalingo/bun" ]; then
 else
     echo "-----> Bun cache not found, downloading..."
     mkdir -p $BUN_DIR
-    BUN_VERSION="1.1.38"
     BUN_DISTRO="linux-x64"
     BUN_BINARY="bun-${BUN_DISTRO}"
     BUN_URL="https://github.com/oven-sh/bun/releases/download/bun-v$BUN_VERSION/${BUN_BINARY}.zip"

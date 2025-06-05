@@ -63,7 +63,7 @@ chmod +x "$BUILD_DIR/.profile.d/bun.sh"
 # Install dependencies with Bun
 echo "-----> Installing dependencies with Bun"
 cd $BUILD_DIR
-$BUN_DIR/bun-linux-x64/bun install --cache || {
+$BUN_DIR/bun-linux-x64/bun install --production --cache || {
   echo "bun install failed."
   exit 1
 }
